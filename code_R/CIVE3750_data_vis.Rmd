@@ -1,0 +1,100 @@
+---
+title: "CIVE3750 Data Visualisation"
+author: "Marco-Felipe King"
+date: '2022-11-15'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+require(ggplot2)
+require(dplyr)
+require(tidyr)
+require(hrbrthemes)
+```
+
+## Boxplots vs Violins!
+
+This is going to be a boxplot of mtcars horsepower vs cylinders and I will colour by cylinder number.
+
+```{r mtcars}
+
+mtcars %>% 
+  ggplot()+
+  geom_violin(aes(x=as.factor(cyl),y=hp,fill=as.factor(cyl)),draw_quantiles = c(0.25,0.5,0.75))+
+  geom_jitter(aes(x=as.factor(cyl),y=hp),height = 0, width=0.1,alpha=0.5)+
+  hrbrthemes::theme_ipsum(axis_text_size = 14,axis_title_size = 14)+
+  xlab("Number of cylinders")+
+  ylab("Horsepower")+
+  scale_fill_brewer(palette = "Set1")+
+  theme(legend.position = " ") -> v
+
+```
+
+# Boxplots
+
+```{r boxplots this time}
+
+mtcars %>% 
+  ggplot()+
+  geom_boxplot(aes(x=as.factor(cyl),y=hp,fill=as.factor(cyl)))+
+  geom_jitter(aes(x=as.factor(cyl),y=hp),height = 0, width=0.1,alpha=0.5)+
+  hrbrthemes::theme_ipsum(axis_text_size = 14,axis_title_size = 14)+
+  xlab("Number of cylinders")+
+  ylab("Horsepower")+
+  scale_fill_brewer(palette = "Set1")+
+  theme(legend.position = " ") -> b
+
+```
+
+# Put them together in the same graph
+
+```{r}
+ggpubr::ggarrange(b,v,ncol = 2,legend = "none",common.legend = TRUE,labels = "auto",)
+```
+# An ANOVA to test the effect of number of cylinders on hp
+```{r}
+
+my_anova <- aov(data=mtcars, hp~as.factor(cyl))
+
+summary(my_anova)
+
+```
+
+Lets plot the residuals
+
+```{r}
+plot(my_anova)
+```
+
+
+## Plot a continuous predictor against a continuous response
+
+```{r}
+
+df <- read.csv("~/Downloads/concrete_data.csv.xls")
+df <- df %>% janitor::clean_names()
+  df
+```
+
+```{r}
+df %>% 
+  pivot_longer(!strength) %>% 
+  ggplot()+
+  geom_point(aes(x=value,y=strength,colour=name),alpha=0.05)+
+  geom_smooth(aes(x=value,y=strength,colour=name),method="lm")+
+  facet_wrap(~name,scales="free")+
+  theme_ipsum()+
+  scale_color_brewer(palette = "Set2")+
+  theme(legend.position = " ")
+  
+```
+
+## Linear regression model to predict strength
+
+```{r}
+
+lm_strength <- lm(data=df,strength~.)
+
+summary(lm_strength)
+```
