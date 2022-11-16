@@ -50,8 +50,29 @@ mtcars %>%
 # Put them together in the same graph
 
 ```{r}
-ggpubr::ggarrange(b,v,ncol = 2,legend = "none",common.legend = TRUE,labels = "auto",)
+ggpubr::ggarrange(b,v,ncol = 2,legend = "none",common.legend = TRUE,labels = c("a) Boxplots","b) Violin plots"))
 ```
+### ANOVA of cylinders on hp
+
+```{r}
+aov(data=mtcars,hp~as.factor(cyl)) %>% broom::tidy()
+```
+
+## Continuous predictor
+```{r}
+
+mtcars %>% 
+  ggplot()+
+  geom_point(aes(x=disp,y=hp,colour=as.factor(cyl)))+
+  geom_smooth(aes(x=disp,y=hp,colour=as.factor(cyl)),method="lm")+  
+  scale_color_brewer(palette = "Set1")+
+  hrbrthemes::theme_ipsum(axis_text_size = 14,axis_title_size = 14)+
+  xlab("Number of cylinders")+
+  ylab("Horsepower")+
+  scale_fill_brewer(palette = "Set1")+
+  theme(legend.position = " ")
+```
+
 # An ANOVA to test the effect of number of cylinders on hp
 ```{r}
 
